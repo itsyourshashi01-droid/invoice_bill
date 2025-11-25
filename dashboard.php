@@ -1,99 +1,101 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "medical_billing");
+include "db.php";
 
-// TOTAL SALES
-$total_sales = $conn->query("SELECT SUM(grand_total) AS total FROM invoices")->fetch_assoc()['total'];
-$total_sales = $total_sales ?: 0;
+// SAFE COUNTS WITH ERROR CHECKING
+function safeCount($conn, $table) {
+    $sql = "SELECT COUNT(*) AS total FROM $table";
+    $result = $conn->query($sql);
 
-// TODAY SALES
-$today = date("Y-m-d");
-$today_sales = $conn->query("SELECT SUM(grand_total) AS total FROM invoices WHERE DATE(date_time)='$today'")
-                    ->fetch_assoc()['total'];
-$today_sales = $today_sales ?: 0;
+    if (!$result) { return 0; }
 
-// TOTAL INVOICES
-$total_invoices = $conn->query("SELECT COUNT(*) AS c FROM invoices")->fetch_assoc()['c'];
-
-// TOTAL CUSTOMERS
-$total_customers = $conn->query("SELECT COUNT(*) AS c FROM customers")->fetch_assoc()['c'];
-
-// LAST 10 INVOICES
-$latest = $conn->query("SELECT * FROM invoices ORDER BY id DESC LIMIT 10");
-
-?>
-<!DOCTYPE html>
-<html>
-<head>
-<title>Dashboard</title>
-<style>
-body { font-family: Arial; padding:20px; }
-.box-container { display:flex; gap:20px; }
-.box {
-    flex:1;
-    padding:20px;
-    background:#f7f7f7;
-    border:1px solid #ccc;
-    font-size:20px;
-    text-align:center;
+    $row = $result->fetch_assoc();
+    return $row['total'];
 }
-table { width:100%; margin-top:30px; border-collapse: collapse; }
-th, td { border:1px solid #000; padding:8px; text-align:center; }
-</style>
-</head>
-<body>
 
-<h1>Dashboard</h1>
+// Correct table names based on your phpMyAdmin screenshot
+$total_products   = safeCount($conn, "smh_stock");      // Medicine Stock (SMH)
+$total_customers  = safeCount($conn, "customers");
+$total_invoices   = safeCount($conn, "invoices");
+$total_purchases  = safeCount($conn, "purchases");
+?>
 
-<div class="box-container">
-    <div class="box">
-        <b>Total Sales</b><br>
-        ₹ <?= number_format($total_sales, 2); ?>
+<div class="page-title">Dashboard</div>
+
+<div class="dash-box-container">
+
+    <div class="dash-box" onclick="loadPage('customers')">
+        <div class="dash-box-number"><?= $total_customers ?></div>
+        <div class="dash-box-label">Total Customers</div>
     </div>
 
-    <div class="box">
-        <b>Today's Sales</b><br>
-        ₹ <?= number_format($today_sales, 2); ?>
+    <div class="dash-box" onclick="loadPage('supplier_stock')">
+        <div class="dash-box-number"><?= $total_products ?></div>
+        <div class="dash-box-label">Medicine Stock</div>
     </div>
 
-    <div class="box">
-        <b>Total Invoices</b><br>
-        <?= $total_invoices; ?>
+    <div class="dash-box" onclick="loadPage('invoices')">
+        <div class="dash-box-number"><?= $total_invoices ?></div>
+        <div class="dash-box-label">Total Invoices</div>
     </div>
 
-    <div class="box">
-        <b>Total Customers</b><br>
-        <?= $total_customers; ?>
+    <div class="dash-box" onclick="loadPage('purchase_list')">
+        <div class="dash-box-number"><?= $total_purchases ?></div>
+        <div class="dash-box-label">Total Purchases</div>
     </div>
+
 </div>
 
-<h2>Latest 10 Invoices</h2>
+<style>
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
 
-<table>
-<tr>
-    <th>ID</th>
-    <th>Bill No</th>
-    <th>Date</th>
-    <th>Customer</th>
-    <th>Doctor</th>
-    <th>Total</th>
-    <th>Action</th>
-</tr>
+/* Dashboard Boxes */
+.dash-box-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
 
-<?php while($row = $latest->fetch_assoc()) { ?>
-<tr>
-    <td><?= $row['id']; ?></td>
-    <td><?= $row['bill_no']; ?></td>
-    <td><?= date("d-m-Y h:i A", strtotime($row['date_time'])); ?></td>
-    <td><?= $row['customer_name']; ?></td>
-    <td><?= $row['doctor_name']; ?></td>
-    <td>₹ <?= number_format($row['grand_total'], 2); ?></td>
-    <td>
-        <a target="_blank" href="print_invoice.php?id=<?= $row['id']; ?>">Print</a>
-    </td>
-</tr>
-<?php } ?>
+.dash-box {
+    width: 260px;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: 0.25s;
+}
 
-</table>
+.dash-box:hover {
+    background: #f0f6ff;
+    transform: translateY(-3px);
+}
 
-</body>
-</html>
+.dash-box-number {
+    font-size: 42px;
+    font-weight: bold;
+    color: #1b5fc9;
+}
+
+.dash-box-label {
+    font-size: 18px;
+    color: #333;
+}
+
+/* Mobile Responsive */
+@media(max-width: 600px){
+    .dash-box {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+// AJAX Page Loader
+function loadPage(pageName){
+    $("#content-area").load("ajax_page.php?page=" + pageName);
+}
+</script>

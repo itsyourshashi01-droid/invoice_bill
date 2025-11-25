@@ -1,0 +1,68 @@
+/* Sidebar */
+#sidebar {
+    width: 240px;
+    background: #1b2a47;
+    color: white;
+    min-height: 100vh;
+    position: fixed;
+}
+
+#sidebar .sidebar-header {
+    padding: 25px;
+    background: #162033;
+}
+
+/* Sidebar links */
+#sidebar ul li a {
+    padding: 12px 20px;
+    display: block;
+    color: #d9e6ff;
+    font-size: 15px;
+}
+
+#sidebar ul li a:hover {
+    background: #233354;
+    color: #fff;
+}
+
+/* Main content */
+#content {
+    margin-left: 240px;
+    padding: 20px;
+    background: #f4f7fb;
+    min-height: 100vh;
+}
+
+/* Card-style content box */
+.content-box {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* Buttons */
+.btn-success {
+    background: #2ecc71;
+    border: none;
+}
+
+.btn-danger {
+    background: #e74c3c;
+}
+
+.btn-secondary {
+    background: #7f8c8d;
+}
+
+/* Mobile friendly */
+@media(max-width: 768px){
+    #sidebar {
+        width: 100%;
+        position: relative;
+        min-height: auto;
+    }
+    #content {
+        margin-left: 0;
+    }
+}

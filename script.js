@@ -20,3 +20,27 @@ function removeRow(btn) {
     let row = btn.parentNode.parentNode;
     row.parentNode.removeChild(row);
 }
+// OPEN MODAL
+$(document).on("click", "#openSupplierModal", function () {
+    $("#supplierModal").fadeIn(200);
+});
+
+// CLOSE MODAL
+$(document).on("click", "#closeSupplierModal, #closeSupplierModal2", function () {
+    $("#supplierModal").fadeOut(200);
+});
+
+// SAVE SUPPLIER AJAX
+$("#supplierForm").submit(function(e){
+    e.preventDefault();
+
+    $.post("supplier_add_ajax.php", $(this).serialize(), function(res){
+
+        alert("Supplier Added Successfully!");
+
+        $("#supplierModal").fadeOut(200);
+
+        // Refresh list
+        $("#main-content").load("ajax_page.php?page=suppliers_content.php");
+    });
+});

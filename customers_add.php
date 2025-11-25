@@ -1,50 +1,59 @@
-<?php
-$conn = new mysqli("localhost", "root", "", "medical_billing");
+<?php include("db.php"); ?>
+<div class="content-box">
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['customer_name'];
-    $docname = $_POST['doctor_name'];
-    $contact = $_POST['contact'];
-    $address = $_POST['address'];
-    $gstin = $_POST['gstin'];
+    <h2>Add New Customer</h2>
+    <hr>
 
-    $conn->query("
-        INSERT INTO customers (customer_name, doctor_name, contact, address, gstin)
-        VALUES ('$name', '$docname', '$contact', '$address', '$gstin')
-    ");
+    <form id="customerForm">
 
-    header("Location: customers.php");
-    exit;
-}
-?>
+        <div class="row">
+            <div class="col-md-6">
+                <label><strong>Customer Name *</strong></label>
+                <input type="text" name="customer_name" class="form-control" required>
+            </div>
 
-<!DOCTYPE html>
-<html>
-<head><title>Add Customer</title></head>
-<body>
+            <div class="col-md-6">
+                <label><strong>Contact</strong></label>
+                <input type="text" name="contact" class="form-control">
+            </div>
+        </div>
 
-<h2>Add Customer</h2>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label><strong>GSTIN</strong></label>
+                <input type="text" name="gstin" class="form-control">
+            </div>
 
-<form method="POST">
+            <div class="col-md-6">
+                <label><strong>Doctor / Hospital</strong></label>
+                <input type="text" name="doctor_name" class="form-control">
+            </div>
+        </div>
 
-<label>Customer Name:</label>
-<input type="text" name="customer_name" required><br><br>
+        <div class="mt-3">
+            <label><strong>Address</strong></label>
+            <textarea name="address" class="form-control"></textarea>
+        </div>
 
-<label>Doctor / Hospital Name:</label>
-<input type="text" name="doctor_name"><br><br>
+        <button type="submit" class="btn btn-success mt-4">Save Customer</button>
 
-<label>Contact:</label>
-<input type="text" name="contact"><br><br>
+        <button type="button" 
+                class="btn btn-secondary mt-4 ajax-link" 
+                data-page="customers_list.php">
+            Back
+        </button>
 
-<label>Address:</label>
-<textarea name="address"></textarea><br><br>
+    </form>
 
-<label>GSTIN:</label>
-<input type="text" name="gstin"><br><br>
+</div>
 
-<button type="submit">Save Customer</button>
+<script>
+$("#customerForm").submit(function(e){
+    e.preventDefault();
 
-</form>
-
-</body>
-</html>
+    $.post("customer_add_ajax.php", $(this).serialize(), function(res){
+        alert("Customer Added Successfully");
+        $("#main-content").load("ajax_page.php?page=customers_list.php");
+    });
+});
+</script>
